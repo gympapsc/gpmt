@@ -1,0 +1,3 @@
+[submodule "duckling"]
+	path = duckling
+	url = https://github.com/gympapsc/duckling.git
