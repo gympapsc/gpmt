@@ -1,21 +1,60 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {User} from "./entity/User";
+import {Connection, createConnection, getCustomRepository, getRepository} from "typeorm";
+import {Message, User, UserRepository} from "./entity/User";
+import * as express from "express"
+import { Request, Response } from "express"
+import * as bodyParser from "body-parser"
+import * as cookieParser from "cookie-parser"
 
-createConnection().then(async connection => {
+interface Handler {
+    method: string;
+    path: string;
+    action: (req: Request, res: Response, connection: Connection) => Promise<any>;
+}
 
-    console.log("Inserting a new user into the database...");
-    const user = new User();
-    user.firstName = "Timber";
-    user.lastName = "Saw";
-    user.age = 25;
-    await connection.manager.save(user);
-    console.log("Saved a new user with id: " + user.id);
+const AppRoutes: Handler[] = [
+    {
+        method: "get",
+        path: "/",
+        action: async (req: Request, res: Response, connection: Connection) => {
+            const userRepo = getCustomRepository(UserRepository)
+            let user = await userRepo.findByEmail("hakim@rachidi.com");
 
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(User);
-    console.log("Loaded users: ", users);
+            if (!user) {
+                user = await userRepo.create({
+                    firstName: "Hakim",
+                    lastName: "Rachidi",
+                    email: "hakim@rachidi.com",
+                    sex: "m",
+                    passwordHash: "",
+                    birthDate: new Date(),
+                    messages: []
+                })
+                await userRepo.save(user)
+                user = await userRepo.findByEmail("hakim@rachidi.com");
+            }
 
-    console.log("Here you can setup and run express/koa/any other framework.");
+            res.json(user)
+        }
+    }
+]
 
+createConnection().then(async (connection: Connection) => {
+    const app = express();
+
+    app.use(bodyParser.json())
+    app.use(cookieParser())
+
+    AppRoutes.forEach(route => {
+        app[route.method.toLowerCase() || "get" ](route.path, (req: Request, res: Response, next: Function) => {
+            route.action(req, res, connection)
+                .then(() => next())
+                .catch(err => next(err))
+        })
+    })
+
+
+    app.listen(80, () => {
+        console.log("Server is listening on port 80")
+    })
 }).catch(error => console.log(error));
