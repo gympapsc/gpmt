@@ -3,7 +3,7 @@ module.exports =  {
    "host": "db-mysql-gpmt-do-user-10761257-0.b.db.ondigitalocean.com",
    "port": 25060,
    "username": "doadmin",
-   "password": "",
+   "password": "kKUmGwfEK2AZq1zl",
    "database": "defaultdb",
    "synchronize": true,
    "logging": true,

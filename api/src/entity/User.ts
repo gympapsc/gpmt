@@ -51,6 +51,15 @@ export class User extends TimedEntity {
     @Column()
     passwordHash: string;
 
+    @Column()
+    weight: number;
+
+    @Column()
+    height: number;
+
+    @Column()
+    role: number;
+
     @OneToMany(() => Message, message => message.user)
     messages: Message[];
 }
@@ -61,5 +70,9 @@ export class UserRepository extends Repository<User> {
 
     findByEmail(email: string) {
         return this.findOne({ email })
+    }
+
+    findById(id: number) {
+        return this.findOne(id)
     }
 }
