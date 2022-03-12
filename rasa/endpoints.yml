@@ -10,15 +10,21 @@
 # Server which runs your custom actions.
 # https://rasa.com/docs/rasa/custom-actions
 
-#action_endpoint:
-#  url: "http://localhost:5055/webhook"
+action_endpoint:
+  url: "http://gpmt-actions.default.svc.cluster.local:5055/webhook"
 
 # Tracker store which is used to store the conversations.
 # By default the conversations are stored in memory.
 # https://rasa.com/docs/rasa/tracker-stores
 
-#tracker_store:
-#    type: redis
+# tracker_store:
+  # type: SQL
+  # dialect: "mysql+pymysql"
+  # url: "mysql.default.svc.cluster.local"
+  # username: "root"
+  # password: "password"
+  # db: "rasa"
+
 #    url: <host of the redis instance, e.g. localhost>
 #    port: <port of your redis instance, usually 6379>
 #    db: <number of your database within redis, e.g. 0>

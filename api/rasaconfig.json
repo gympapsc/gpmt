@@ -1,0 +1,3 @@
+{
+    "url": "http://gpmt-rasa.default.svc.cluster.local:5005/webhooks/rest/webhook"
+}

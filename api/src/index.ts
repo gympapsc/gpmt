@@ -7,6 +7,8 @@ import * as bodyParser from "body-parser"
 import * as cookieParser from "cookie-parser"
 import {authorize, authenticate, unauthenticate} from "./auth"
 import * as bcrypt from "bcrypt"
+import * as rasaconfig from "../rasaconfig.json"
+import axios from "axios"
 
 interface Handler {
     method?: string;
@@ -132,16 +134,42 @@ const AdminRoutes: Handler[] = [
     }
 ]
 
+const SystemRoutes: Handler[] = [
+    {
+        method: "get",
+        path: "/system",
+        secure: false,
+        role: "system",
+        action: async (req, res, user) => {
+            res.json({
+                ok: true
+            })
+        }
+    }
+]
+
+
+
+
+// test
+axios.post(rasaconfig.url, {
+    message: "Hello", sender: "hakim"
+}).then(res => console.log(res.data))
+// ======
+
+
+
+
 createConnection().then(async (connection: Connection) => {
     const app = express();
 
     app.use(bodyParser.json())
     app.use(cookieParser())
 
-    const Routes = [...AppRoutes, ...AdminRoutes]
+    const Routes = [...AppRoutes, ...AdminRoutes, ...SystemRoutes]
 
     Routes.forEach(route => {
-        app[route.method.toLowerCase() || "get" ](route.path, [
+        app[route.method?.toLowerCase() || "get" ](route.path, [
             route.secure ? authorize(route.role) : (req, res, next) => next(),
             (req: Request, res: Response, next: Function) => {
                 route.action(req, res, req.user)

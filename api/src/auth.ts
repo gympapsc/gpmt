@@ -23,7 +23,7 @@ passport.use(
     })
 )
 
-export const authorize = role => (req: Request, res: Response, next) => {
+export const authorize = (role: string) => (req: Request, res: Response, next) => {
     passport.authenticate("jwt", (err, user, info) => {
         if (err) return next(err)
         if (user) {

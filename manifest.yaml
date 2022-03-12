@@ -1,10 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: mysql
+  name: mysql
 spec:
-    type: ExternalName
-    externalName: host.minikube.internal
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: mysql
+subsets:
+  - addresses:
+    - ip: 192.168.59.1
+    ports:
+    - port: 3306
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,12 +45,115 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: gpmt-api
+  name: gpmt-api
 spec:
-    type: NodePort
-    selector:
-        app: gpmt-api
-    ports:
-        - port: 80
-          targetPort: 80
-          nodePort: 30000
+  type: NodePort
+  selector:
+    app: gpmt-api
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpmt-rasa
+  labels:
+    app: gpmt-rasa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpmt-rasa
+  template:
+    metadata:
+      labels:
+        app: gpmt-rasa
+    spec:
+      containers:
+      - name: gpmt-rasa
+        image: hakrac/gpmt-rasa:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5005
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpmt-rasa
+spec:
+  selector:
+    app: gpmt-rasa
+  ports:
+  - port: 5005
+    targetPort: 5005
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpmt-actions
+  labels:
+    app: gpmt-actions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpmt-actions
+  template:
+    metadata:
+      labels:
+        app: gpmt-actions
+  
+    spec:
+      containers:
+      - name: gpmt-actions
+        image: hakrac/gpmt-actions:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5055
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpmt-actions
+spec:
+  selector:
+    app: gpmt-actions
+  ports:
+  - port: 5055
+    targetPort: 5055
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpmt-duckling
+  labels:
+    app: gpmt-duckling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpmt-duckling
+  template:
+    metadata:
+      labels:
+        app: gpmt-duckling
+    spec:
+      containers:
+      - name: gpmt-duckling
+        image: hakrac/gpmt-duckling:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpmt-duckling
+spec:
+  selector: 
+    app: gpmt-duckling
+  ports:
+  - port: 8000
+    targetPort: 8000
