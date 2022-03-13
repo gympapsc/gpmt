@@ -210,3 +210,37 @@ spec:
             - python
             - /src/scheduler.py
           restartPolicy: OnFailure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpmt-next
+  labels:
+    app: gpmt-next
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpmt-next
+  template:
+    metadata:
+      labels:
+        app: gpmt-next
+    spec:
+      containers:
+      - name: gpmt-next
+        image: hakrac/gpmt-next:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpmt-next
+spec:
+  selector:
+    app: gpmt-next
+  ports:
+  - port: 80
+    targetPort: 3000

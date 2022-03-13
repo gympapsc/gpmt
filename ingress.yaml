@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gpmt-ingress
+spec:
+  rules:
+  - host: gympapmt.de
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: gpmt-next
+            port:
+              number: 80
+  - host: api.gympapmt.de
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: gpmt-api
+            port:
+              number: 80

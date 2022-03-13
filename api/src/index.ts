@@ -21,6 +21,17 @@ interface Handler {
 const AppRoutes: Handler[] = [
     {
         method: "get",
+        path: "/health",
+        secure: false,
+        role: "",
+        action: async (req, res) => {
+            res.json({
+                health: "ok"
+            })
+        }
+    },
+    {
+        method: "get",
         path: "/",
         secure: true,
         role: "user",
@@ -149,15 +160,11 @@ const SystemRoutes: Handler[] = [
 ]
 
 
-
-
 // test
 axios.post(rasaconfig.url, {
     message: "Hello", sender: "hakim"
 }).then(res => console.log(res.data))
 // ======
-
-
 
 
 createConnection().then(async (connection: Connection) => {
@@ -172,6 +179,7 @@ createConnection().then(async (connection: Connection) => {
         app[route.method?.toLowerCase() || "get" ](route.path, [
             route.secure ? authorize(route.role) : (req, res, next) => next(),
             (req: Request, res: Response, next: Function) => {
+                console.log(route.path)
                 route.action(req, res, req.user)
                     .then(() => next())
                     .catch(err => next(err))
