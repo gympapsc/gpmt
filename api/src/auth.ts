@@ -55,7 +55,9 @@ export const authenticate: (user: User, response: Response) => Promise<void> = (
     }, "signsecret", (err, token) => {
         if (err) return rej(err)
         response
-            .cookie("authToken", token, {})
+            .cookie("authToken", token, {
+                domain: "gympapmt.de"
+            })
         res()
     })
 })
