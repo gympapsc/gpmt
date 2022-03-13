@@ -157,3 +157,56 @@ spec:
   ports:
   - port: 8000
     targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpmt-net
+  labels:
+    app: gpmt-net
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpmt-net
+  template:
+    metadata:
+      labels:
+        app: gpmt-net
+    spec:
+      containers:
+      - name: gpmt-net
+        image: hakrac/gpmt-net:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpmt-net
+spec:
+  selector:
+    app: gpmt-net
+  ports:
+  - port: 8081
+    targetPort: 8081
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: gpmt-net-scheduler
+spec:
+  schedule: "0,15,30,45 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: gpmt-net-scheduler
+            image: hakrac/gpmt-net:latest
+            imagePullPolicy: Always
+            command:
+            - python
+            - /src/scheduler.py
+          restartPolicy: OnFailure
